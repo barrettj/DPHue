@@ -160,6 +160,10 @@
 }
 
 - (void)write {
+    [self writeWithCompletion:nil];
+}
+
+- (void)writeWithCompletion:(void (^)(NSError *err))block{
     if (self.pendingChanges.count == 0)
         return;
     if (self.transitionTime) {
@@ -171,6 +175,7 @@
     request.URL = self.writeURL;
     request.HTTPMethod = @"PUT";
     request.HTTPBody = json;
+    request.timeoutInterval = 10;
     DPJSONConnection *connection = [[DPJSONConnection alloc] initWithRequest:request];
     connection.jsonRootObject = self;
     NSMutableString *msg = [[NSMutableString alloc] init];
@@ -180,6 +185,8 @@
 #ifdef DEBUG
         WSLog(@"writeSuccess: %@:\n%@", self.writeSuccess ? @"True" : @"False", msg);
 #endif
+        if (block)
+            block(err);
     };
     [connection start];
 }
@@ -187,7 +194,7 @@
 #pragma mark - DSJSONSerializable
 
 - (void)readFromJSONDictionary:(id)d {
-    if (![d respondsToSelector:@selector(objectForKeyedSubscript:)]) {
+    if ( [d isKindOfClass:[NSArray class]] ) {
         // We were given an array, not a dict, which means
         // the Hue is telling us the result of a PUT
         // Loop through all results, if any are not successful, error out

@@ -90,6 +90,7 @@
 
 // Write only pending changes to controller
 - (void)write;
+- (void)writeWithCompletion:(void (^)(NSError *err))block;
 
 // Write entire state to controller, regardless of changes
 - (void)writeAll;
