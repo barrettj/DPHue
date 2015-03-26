@@ -194,7 +194,7 @@
 #pragma mark - DSJSONSerializable
 
 - (void)readFromJSONDictionary:(id)d {
-    if (![d respondsToSelector:@selector(objectForKeyedSubscript:)]) {
+    if ( [d isKindOfClass:[NSArray class]] ) {
         // We were given an array, not a dict, which means
         // the Hue is telling us the result of a PUT
         // Loop through all results, if any are not successful, error out
